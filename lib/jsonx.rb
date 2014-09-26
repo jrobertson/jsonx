@@ -75,7 +75,7 @@ class JSONx
         end
       }
     }
-    @to_json = types[:object].call doc.root
+    @to_json = types[:object].call(doc.root).to_json
     
   end
   
