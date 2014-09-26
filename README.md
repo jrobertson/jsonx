@@ -6,21 +6,19 @@
     puts JSONx.new(h).to_s
 
 <pre>
-<?xml version='1.0' encoding='UTF-8'?>
-<json:object xsi:schemaLocation='http://www.datapower.com/schemas/json jsonx.xsd'
- xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' 
-xmlns:json='http://www.ibm.com/xmlns/prod/2009/jsonx'>
-  <json:string name='f100'>fff</json:string>
-  <json:string name='g100'>ggg</json:string>
-  <json:null name='n100'></json:null>
-  <json:array name='a100'>
-    <json:number>3</json:number>
-    <json:number>5</json:number>
-  </json:array>
-  <json:object name='h100'>
-    <json:string name='y100'>yyy</json:string>
-  </json:object>
-</json:object>
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;json:object xsi:schemaLocation='http://www.datapower.com/schemas/json jsonx.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:json='http://www.ibm.com/xmlns/prod/2009/jsonx'&gt;
+  &lt;json:string name='f100'&gt;fff&lt;/json:string&gt;
+  &lt;json:string name='g100'&gt;ggg&lt;/json:string&gt;
+  &lt;json:null name='n100'&gt;&lt;/json:null&gt;
+  &lt;json:array name='a100'&gt;
+    &lt;json:number&gt;3&lt;/json:number&gt;
+    &lt;json:number&gt;5&lt;/json:number&gt;
+  &lt;/json:array&gt;
+  &lt;json:object name='h100'&gt;
+    &lt;json:string name='y100'&gt;yyy&lt;/json:string&gt;
+  &lt;/json:object&gt;
+&lt;/json:object&gt;
 </pre>
 
 ## Resources
