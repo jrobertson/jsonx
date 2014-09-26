@@ -8,12 +8,26 @@ require 'rexle'
 
 class JSONx
 
-  attr_reader :to_s
+  attr_reader :to_s, :to_json
 
   def initialize(obj)
     
-    h = obj.is_a?(String) ? JSON.parse(obj) : obj
+    if obj.is_a?(String) then
+      
+      if obj.lstrip == '<' then
+        to_json obj
+      else
+        to_jsonx JSON.parse(obj)
+      end
+      
+    else
+      to_jsonx obj # transform the hash
+    end
 
+
+  end
+  
+  def to_jsonx(h)
     types = {
       Hash:     ->(k, h){
         type = 'json:object'
@@ -21,10 +35,14 @@ class JSONx
           *h.map {|k2,v| types[v.class.to_s.to_sym].call(k2, v)}
         ]
       },
-      Fixnum:   ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
-      NilClass: ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
-      String:   ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
-      Array:    ->(k, a){ 
+      FalseClass: ->(k, b){ ['json:boolean', 
+                                b.to_s, k.empty? ? {} : {name: k}]},
+      TrueClass:  ->(k, b){ ['json:boolean', 
+                                b.to_s, k.empty? ? {} : {name: k}]},
+      Fixnum:     ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
+      NilClass:   ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
+      String:     ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
+      Array:      ->(k, a){ 
         ['json:array', '', {name: k}, 
           *a.map{|y| types[y.class.to_s.to_sym].call('', y.to_s)}
         ]
@@ -35,8 +53,31 @@ class JSONx
     a[2] = {'xsi:schemaLocation' => "http://www.datapower.com/schemas/json jsonx.xsd",
     'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
     'xmlns:json' => "http://www.ibm.com/xmlns/prod/2009/jsonx"}
-    @to_s = Rexle.new(a).xml pretty: true
+    @to_s = Rexle.new(a).xml pretty: true    
   end
+  
+  def to_json(xml)
+    
+    doc = Rexle.new xml
+
+    types = {
+      string: ->(e){e.text},
+      null: ->(e){nil},
+      number: ->(e){ s = e.text; s.to_i == s.to_f ? s.to_i : s.to_f},
+      array: ->(e){
+        e.elements.map {|x| types[x.name[/\w+$/].to_sym].call x }
+      },
+      object: ->(e){
+        e.elements.inject({}) do |r, x| 
+          name = x.name[/\w+$/]
+          r.merge(x.attributes[:name] => types[name.to_sym].call(x))
+        end
+      }
+    }
+    @to_json = types[:object].call doc.root
+    
+  end
+  
 
 end
 

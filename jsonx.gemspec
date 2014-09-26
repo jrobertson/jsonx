@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'jsonx'
-  s.version = '0.1.4'
+  s.version = '0.2.0'
   s.summary = 'Transforms JSON into JSONx'
   s.authors = ['James Robertson']
   s.files = Dir['lib/**/*.rb']
