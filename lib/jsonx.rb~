@@ -2,6 +2,7 @@
 
 # file: jsonx.rb
 
+require 'json'
 require 'rexle'
 
 
@@ -9,7 +10,9 @@ class JSONx
 
   attr_reader :to_s
 
-  def initialize(h)
+  def initialize(obj)
+    
+    h = obj.is_a?(String) ? JSON.parse(obj) : obj
 
     types = {
       Hash:     ->(k, h){

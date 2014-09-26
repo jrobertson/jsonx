@@ -21,10 +21,14 @@ class JSONx
           *h.map {|k2,v| types[v.class.to_s.to_sym].call(k2, v)}
         ]
       },
-      Fixnum:   ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
-      NilClass: ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
-      String:   ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
-      Array:    ->(k, a){ 
+      FalseClass: ->(k, b){ ['json:boolean', 
+                                b.to_s, k.empty? ? {} : {name: k}]},
+      TrueClass:  ->(k, b){ ['json:boolean', 
+                                b.to_s, k.empty? ? {} : {name: k}]},
+      Fixnum:     ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
+      NilClass:   ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
+      String:     ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
+      Array:      ->(k, a){ 
         ['json:array', '', {name: k}, 
           *a.map{|y| types[y.class.to_s.to_sym].call('', y.to_s)}
         ]
