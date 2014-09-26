@@ -22,8 +22,9 @@ class JSONx
       NilClass: ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
       String:   ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
       Array:    ->(k, a){ 
+        puts 'array :'  + a.inspect
         ['json:array', '', {name: k}, 
-          *a.map{|y| types[y.class.to_s.to_sym].call('', y.to_s)}
+          *a.map{|y| p y; types[y.class.to_s.to_sym].call('', y.to_s)}
         ]
       }
     }
