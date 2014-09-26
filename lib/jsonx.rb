@@ -26,6 +26,8 @@ class JSONx
 
 
   end
+
+  private
   
   def json_to_jsonx(h)
     types = {
