@@ -26,12 +26,16 @@ class JSONx
 
 
   end
+  
+  alias to_jsonx to_s
+  alias to_xml to_s
 
   private
   
   def json_to_jsonx(h)
+    
     types = {
-      Hash:     ->(k, h){
+           Hash:  ->(k, h){
         type = 'json:object'
         [type, '', (k.empty? ? {} : {name: k}), 
           *h.map {|k2,v| types[v.class.to_s.to_sym].call(k2, v)}
@@ -39,14 +43,15 @@ class JSONx
       },
       FalseClass: ->(k, b){ ['json:boolean', 
                                 b.to_s, k.empty? ? {} : {name: k}]},
-      TrueClass:  ->(k, b){ ['json:boolean', 
+       TrueClass: ->(k, b){ ['json:boolean', 
                                 b.to_s, k.empty? ? {} : {name: k}]},
-      Fixnum:     ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
-      NilClass:   ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
-      String:     ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
-      Array:      ->(k, a){ 
+          Fixnum: ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
+           Float: ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
+        NilClass: ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
+          String: ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
+           Array: ->(k, a){ 
         ['json:array', '', {name: k}, 
-          *a.map{|y| types[y.class.to_s.to_sym].call('', y.to_s)}
+          *a.map{|y| types[y.class.to_s.to_sym].call('', y)}
         ]
       }
     }
@@ -64,16 +69,15 @@ class JSONx
 
     types = {
       boolean: ->(e){ e.text.downcase == 'true' },
-      string: ->(e){e.text},
-      null: ->(e){nil},
-      number: ->(e){ s = e.text; s.to_i == s.to_f ? s.to_i : s.to_f},
-      array: ->(e){
+       string: ->(e){ e.text },
+         null: ->(e){ nil },
+       number: ->(e){ s = e.text; s.to_i == s.to_f ? s.to_i : s.to_f},
+        array: ->(e){
         e.elements.map {|x| types[x.name[/\w+$/].to_sym].call x }
       },
-      object: ->(e){
+       object: ->(e){
         e.elements.inject({}) do |r, x| 
-          name = x.name[/\w+$/]
-          r.merge(x.attributes[:name] => types[name.to_sym].call(x))
+          r.merge(x.attributes[:name] => types[x.name[/\w+$/].to_sym].call(x))
         end
       }
     }
