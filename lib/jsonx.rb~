@@ -24,40 +24,44 @@ class JSONx
       json_to_jsonx obj # transform the hash
     end
 
-
   end
   
   alias to_jsonx to_s
+  alias to_xml to_s
 
   private
   
   def json_to_jsonx(h)
     
     types = {
-           Hash:  ->(k, h){
+      
+            Hash:  ->(k, h) {
         type = 'json:object'
-        [type, '', (k.empty? ? {} : {name: k}), 
+        [type, (k.empty? ? {} : {name: k}), '',
           *h.map {|k2,v| types[v.class.to_s.to_sym].call(k2, v)}
         ]
       },
       FalseClass: ->(k, b){ ['json:boolean', 
-                                b.to_s, k.empty? ? {} : {name: k}]},
+                                k.empty? ? {} : {name: k}, b.to_s ]},
        TrueClass: ->(k, b){ ['json:boolean', 
-                                b.to_s, k.empty? ? {} : {name: k}]},
-          Fixnum: ->(k, n){ ['json:number', n, k.empty? ? {} : {name: k}]},
-        NilClass: ->(k, n){ ['json:null',  '', k.empty? ? {} : {name: k}]},
-          String: ->(k, s){ ['json:string', s, k.empty? ? {} : {name: k}]},
+                                k.empty? ? {} : {name: k}, b.to_s]},
+          Fixnum: ->(k, n){ ['json:number', k.empty? ? {} : {name: k}, n]},
+           Float: ->(k, n){ ['json:number', k.empty? ? {} : {name: k}, n]},
+        NilClass: ->(k, n){ ['json:null',  k.empty? ? {} : {name: k}, '']},
+          String: ->(k, s){ ['json:string', k.empty? ? {} : {name: k}, s]},
            Array: ->(k, a){ 
-        ['json:array', '', {name: k}, 
-          *a.map{|y| types[y.class.to_s.to_sym].call('', y.to_s)}
+        ['json:array', {name: k}, '', 
+          *a.map{|y| types[y.class.to_s.to_sym].call('', y)}
         ]
       }
+    
     }
 
     a =  types[:Hash].call '', h
     a[2] = {'xsi:schemaLocation' => "http://www.datapower.com/schemas/json jsonx.xsd",
     'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
     'xmlns:json' => "http://www.ibm.com/xmlns/prod/2009/jsonx"}
+    
     @to_s = Rexle.new(a).xml pretty: true    
   end
   
@@ -66,6 +70,7 @@ class JSONx
     doc = Rexle.new xml
 
     types = {
+      
       boolean: ->(e){ e.text.downcase == 'true' },
        string: ->(e){ e.text },
          null: ->(e){ nil },
@@ -79,6 +84,7 @@ class JSONx
         end
       }
     }
+    
     @to_json = types[:object].call(doc.root).to_json
     
   end
