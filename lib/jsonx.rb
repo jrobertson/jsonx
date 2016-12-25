@@ -45,6 +45,7 @@ class JSONx
                                 k.empty? ? {} : {name: k}, b.to_s ]},
        TrueClass: ->(k, b){ ['json:boolean', 
                                 k.empty? ? {} : {name: k}, b.to_s]},
+         Integer: ->(k, n){ ['json:number', k.empty? ? {} : {name: k}, n]},
           Fixnum: ->(k, n){ ['json:number', k.empty? ? {} : {name: k}, n]},
            Float: ->(k, n){ ['json:number', k.empty? ? {} : {name: k}, n]},
         NilClass: ->(k, n){ ['json:null',  k.empty? ? {} : {name: k}, '']},
